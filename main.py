@@ -1,8 +1,8 @@
 from PIL import Image, ImagePalette
 from sys import stdin
+from matplotlib import colors
 
-
-def get_input():
+def get_size():
     try:
         input = stdin.readline().strip()
         if input in phones:
@@ -34,12 +34,32 @@ def paste():
             break
     Image.Image.paste(background,image,position)
 
-def change_background():
-    background_color = image.getpixel((0,0))
-
+def sync_background():
     for x in range(0,width):
         for y in range(0,height):
             background.putpixel((x,y),background_color)
+
+def mul_255(n):
+    return int(n*255)
+
+def change_background(color):
+    rgb = tuple(map(mul_255,colors.to_rgba(color)))
+    print(rgb,background_color)
+
+    for x in range(0,width):
+        for y in range(0,height):
+            if background.getpixel((x,y)) == background_color:
+                background.putpixel((x,y),rgb)
+
+def get_background_color():
+    print("Do you want to change the background color?(Y/N)",end=' ')
+    yn = input()
+    if yn == 'y' or yn == 'Y':
+        print("What color?",end=' ')
+        color = input()
+        change_background(color)
+    elif yn == 'n' or yn == 'N':
+        print("Okay")
 
 def resize():
     pass
@@ -47,16 +67,19 @@ def resize():
 # print("iPhone 8 : 750 × 1334")
 phones = ['iphone8']
 
-size = (width,height) = get_input()
+size = (width,height) = get_size()
 
-background = Image.new(mode='RGB',size=size, color=(256,256,256))
+background = Image.new(mode='RGBA',size=size, color=(256,256,256))
 
 image = Image.open('logo.png')
-image.convert('RGB')
+image.convert('RGBA')
 print(image.size)
 
-change_background()
+background_color = image.getpixel((0,0))
+sync_background()
 
 paste()
+
+get_background_color()
 
 background.save('background.png')
