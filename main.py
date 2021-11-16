@@ -32,12 +32,11 @@ def paste():
         elif location == 'upper':
             position = ((width - image.width)//2,(int)((height - image.height)*0.25))
             break
-    Image.Image.paste(background,image,position)
-
-def sync_background():
-    for x in range(0,width):
-        for y in range(0,height):
-            background.putpixel((x,y),background_color)
+        else:
+            print("Unavailable")
+            paste()
+    # Image.Image.paste(background,image,position)
+    background.paste(image, position)
 
 def mul_255(n):
     return int(n*255)
@@ -69,14 +68,11 @@ phones = ['iphone8']
 
 size = (width,height) = get_size()
 
-background = Image.new(mode='RGBA',size=size, color=(256,256,256))
-
-image = Image.open('logo.png')
-image.convert('RGBA')
+image = Image.open('logo.png').convert('RGBA')  # image to paste
 print(image.size)
 
 background_color = image.getpixel((0,0))
-sync_background()
+background = Image.new(mode='RGBA',size=size, color=background_color)
 
 paste()
 
