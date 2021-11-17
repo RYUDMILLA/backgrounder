@@ -1,7 +1,8 @@
 from PIL import Image, ImagePalette
 import sys
 from matplotlib import colors
-# import time
+import time
+import rotate_cursor as rc
 
 def get_size():
     try:
@@ -46,11 +47,15 @@ def mul_255(n):
 def change_background(color):
     rgb = tuple(map(mul_255,colors.to_rgba(color)))
     print(background_color,'->',rgb)
-
-    for x in range(0,width):
-        for y in range(0,height):
-            if background.getpixel((x,y)) == background_color:
-                background.putpixel((x,y),rgb)
+    print("Converting...",end='')
+    with rc.Spinner():
+        for x in range(0,width):
+            for y in range(0,height):
+                if background.getpixel((x,y)) == background_color:
+                    background.putpixel((x,y),rgb)
+        assert(True)
+        sys.stdout.write('\033[2K\033[1G')
+        print("Converted!")
 
 def get_background_color():
     print("Do you want to change the background color?(Y/N)",end=' ')
