@@ -1,22 +1,25 @@
 from PIL import Image, ImagePalette
-from sys import stdin
+import sys
 from matplotlib import colors
+# import time
 
 def get_size():
     try:
-        input = stdin.readline().strip()
-        if input in phones:
-            width,height = 750, 1334
+        input = sys.stdin.readline().strip().upper()
+        if input in size_dict:
+            print(f"{input}{size_dict[input]} selected. ")
+            return size_dict[input]
         else:
             width,height = map(int, input.split())
         return (width,height)
     except ValueError:
         print("Unavailable")
+        exit(0)
 
 def paste():
     print("select location : mid / bottom / top / upper/ lower")
     while(True):
-        location = stdin.readline().strip()
+        location = sys.stdin.readline().strip()
         if location == 'mid':
             position = ((width - image.width)//2,(height - image.height)//2)
             break
@@ -33,8 +36,7 @@ def paste():
             position = ((width - image.width)//2,(int)((height - image.height)*0.25))
             break
         else:
-            print("Unavailable")
-            paste()
+            print("Unavailable.Enter Again")
     # Image.Image.paste(background,image,position)
     background.paste(image, position)
 
@@ -43,7 +45,7 @@ def mul_255(n):
 
 def change_background(color):
     rgb = tuple(map(mul_255,colors.to_rgba(color)))
-    print(rgb,background_color)
+    print(background_color,'->',rgb)
 
     for x in range(0,width):
         for y in range(0,height):
@@ -63,13 +65,13 @@ def get_background_color():
 def resize():
     pass
 
-# print("iPhone 8 : 750 × 1334")
-phones = ['iphone8']
+print("SD : 750×1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
+size_dict = {'SD':(750,1334), 'HD':(1500,2668), 'FHD':(1859,3306), 'UHD':(2303,4096)}
 
 size = (width,height) = get_size()
 
 image = Image.open('logo.png').convert('RGBA')  # image to paste
-print(image.size)
+print(f"image size : {image.size}")
 
 background_color = image.getpixel((0,0))
 background = Image.new(mode='RGBA',size=size, color=background_color)
