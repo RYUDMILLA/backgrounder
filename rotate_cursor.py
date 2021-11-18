@@ -1,21 +1,3 @@
-# import sys
-# import time
-
-# def spinning_cursor():
-#     while True:
-#         for cursor in '|/-\\':
-#             yield cursor
-
-# def spin_cursor(stop):
-#     spinner = spinning_cursor()
-#     while(stop == False):
-#         sys.stdout.write(next(spinner))
-#         sys.stdout.flush()
-#         time.sleep(0.1)
-#         sys.stdout.write('\b')
-
-
-
 import sys
 import time
 import threading

@@ -12,7 +12,7 @@ def background_to_transparent(img):
     change_background(img, (0,0,0,0), background_color)
 
 def JPEG_to_PNG():
-    img = Image.open('logo.jpg').convert('RGBA')
+    img = Image.open('intj.jpg').convert('RGBA')
     print("Change background to transparent?(Y/N)",end=' ')
     yn = input()
     if yn.lower() == 'y':

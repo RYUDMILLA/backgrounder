@@ -1,14 +1,13 @@
-from PIL import Image, ImagePalette
+from PIL import Image, ImageColor
 import sys
 from matplotlib import colors
-import time
 import rotate_cursor as rc
 
 def get_size():
     try:
         input = sys.stdin.readline().strip().upper()
         if input in size_dict:
-            print(f"{input}{size_dict[input]} selected. ")
+            print(f"{input}{size_dict[input]} selected.\n")
             return size_dict[input]
         else:
             width,height = map(int, input.split())
@@ -37,28 +36,36 @@ def paste():
             position = ((width - image.width)//2,(int)((height - image.height)*0.25))
             break
         else:
-            print("Unavailable.Enter Again")
+            print("Unavailable.Enter Again.")
     # Image.Image.paste(background,image,position)
     background.paste(image, position)
 
 def mul_255(n):
     return int(n*255)
 
+def det_range(pixel, background):
+    for i in range(len(background)):
+        if abs(background[i] - pixel[i]) > int(255*0.05): # 5% range
+            return False
+    return True
+
 def change_background(color):
-    rgb = tuple(map(mul_255,colors.to_rgba(color)))
+    rgb = tuple(map(mul_255,colors.to_rgba(color))) # RGBA using matplotlib
+    # rgb = ImageColor.getrgb(color) # RGB using PIL
     print(background_color,'->',rgb)
     print("Converting...",end='')
     with rc.Spinner():
         for x in range(0,width):
             for y in range(0,height):
-                if background.getpixel((x,y)) == background_color:
+                # if background.getpixel((x,y)) == background_color:
+                if det_range(background.getpixel((x,y)),background_color) == True:
                     background.putpixel((x,y),rgb)
-        assert(True)
-        sys.stdout.write('\033[2K\033[1G')
+        assert(True)                            # stop rotating
+        sys.stdout.write('\033[2K\033[1G')      # delete command line
         print("Converted!")
 
 def get_background_color():
-    print("Do you want to change the background color?(Y/N)",end=' ')
+    print("\nDo you want to change the background color?(Y/N)",end=' ')
     yn = input()
     if yn == 'y' or yn == 'Y':
         print("What color?",end=' ')
@@ -70,15 +77,15 @@ def get_background_color():
 def resize():
     pass
 
+image = Image.open('sample.png').convert('RGBA')  # image to paste
+background_color = image.getpixel((0,0))
+print(f"image size : {image.size} / background color : {background_color}\n")
+
+print("Enter size you want to make.")
 print("SD : 750×1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
 size_dict = {'SD':(750,1334), 'HD':(1500,2668), 'FHD':(1859,3306), 'UHD':(2303,4096)}
-
 size = (width,height) = get_size()
 
-image = Image.open('logo.png').convert('RGBA')  # image to paste
-print(f"image size : {image.size}")
-
-background_color = image.getpixel((0,0))
 background = Image.new(mode='RGBA',size=size, color=background_color)
 
 paste()
