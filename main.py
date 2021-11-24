@@ -75,33 +75,38 @@ def det_range(pixel, background):
             return False
     return True
 
-def change_background(color):
-    rgb = tuple(map(mul_255,colors.to_rgba(color))) # RGBA using matplotlib
-    # rgb = ImageColor.getrgb(color) # RGB using PIL
-    print(background_color,'->',rgb)
-    print("Converting...",end='')
-    with rc.Spinner():
-        for x in range(0,width):
-            for y in range(0,height):
-                # if background.getpixel((x,y)) == background_color:
-                if det_range(background.getpixel((x,y)),background_color) == True:
-                    background.putpixel((x,y),rgb)
-        assert(True)                            # stop rotating
-        sys.stdout.write('\033[2K\033[1G')      # delete command line
-        print("Converted!")
+def change_background():
+    try:
+        print("What color?",end=' ')
+        color = input()
+        rgb = tuple(map(mul_255,colors.to_rgba(color))) # RGBA using matplotlib
+        # rgb = ImageColor.getrgb(color) # RGB using PIL
+    except ValueError:
+        print("Unavailable color")
+        change_background()
+    else:
+        print(background_color,'->',rgb)
+        print("Converting...",end='')
+        with rc.Spinner():
+            for x in range(0,width):
+                for y in range(0,height):
+                    # if background.getpixel((x,y)) == background_color:
+                    if det_range(background.getpixel((x,y)),background_color) == True:
+                        background.putpixel((x,y),rgb)
+            assert(True)                            # stop rotating
+            sys.stdout.write('\033[2K\033[1G')      # delete command line
+            print("Converted!")
 
 def get_background_color():
     print("\nDo you want to change the background color?(Y/N)",end=' ')
     yn = input()
     if yn == 'y' or yn == 'Y':
-        print("What color?",end=' ')
-        color = input()
-        change_background(color)
+        change_background()
     # elif yn == 'n' or yn == 'N':
     else:
         print("Okay")
 
-image = Image.open('sensitivity.png').convert('RGBA')  # image to paste
+image = Image.open('logo.png').convert('RGBA')  # image to paste
 background_color = image.getpixel((0,0))
 print(f"image size : {image.size} / background color : {background_color}\n")
 
