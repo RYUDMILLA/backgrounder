@@ -4,55 +4,48 @@ from matplotlib import colors
 import rotate_cursor as rc
 
 def get_size():
-    try:
-        input = sys.stdin.readline().strip().upper()
-        if input in size_dict:
-            print(f"{input}{size_dict[input]} selected.\n")
-            return size_dict[input]
-        else:
-            width,height = map(int, input.split())
-        return (width,height)
-    except ValueError:
-        print("Unavailable")
-        exit(0)
-
-def set_position(image, location):
-    if location == 'mid':
-        position = ((width - image.width)//2,(height - image.height)//2)
-    elif location == 'bottom':
-        position = ((width - image.width)//2,(height - image.height))
-    elif location == 'lower':
-        position = ((width - image.width)//2,(int)((height - image.height)*0.75))
-    elif location == 'top':
-        position = ((width - image.width)//2,0)
-    elif location == 'upper':
-        position = ((width - image.width)//2,(int)((height - image.height)*0.25))
-    return position
+    print("Enter size you want to make.")
+    print("SD : 750×1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
+    size_dict = {'SD':(750,1334), 'HD':(1500,2668), 'FHD':(1859,3306), 'UHD':(2303,4096)}
+    while(True):
+        try:
+            input = sys.stdin.readline().strip().upper()
+            if input in size_dict:
+                print(f"{input}{size_dict[input]} selected.\n")
+                return size_dict[input]
+            else:
+                width,height = map(int, input.split())
+            return (width,height)
+        except ValueError:
+            print("Unavailable")
+            
+def set_position(image, h_ratio, v_ratio):
+    return (int((width - image.width)*h_ratio),int((height - image.height)*v_ratio))
 
 def set_background():
-    print("select location : mid / bottom / top / upper/ lower")
-    locations = ['mid','bottom','lower','top','upper']
     while(True):
-        location = sys.stdin.readline().strip()
-        if location in locations:
+        try:
+            print("Set horizonal ratio(%):",end=' ')
+            h_ratio = int(input())*0.01
+            print("Set vertical ratio(%):",end=' ')
+            v_ratio = (100 - int(input()))*0.01
             break
-        else:
-            print("Unavailable.Enter Again.")
-    # Image.Image.paste(background,image,position)
-    return resize(image, location)
+        except ValueError:
+            print("Unavailable.")
+    return resize(image,h_ratio,v_ratio)
 
-def paste(image, location):
-    position = set_position(image, location)
+def paste(image, h_ratio, v_ratio):
+    position = set_position(image, h_ratio, v_ratio)
     background = Image.new(mode='RGBA', size=size, color=background_color)
     background.paste(image, position)
     background.show()
     return background
 
-def resize(image, location):
-    pasted = paste(image, location)
+def resize(image, h_ratio, v_ratio):
+    pasted = paste(image, h_ratio, v_ratio)
     resized = image.copy()
     while(True):
-        print("\nWant to resize?(Y/N)",end=' ')
+        print("\nWant to resize?(proportion maintained)(Y/N)",end=' ')
         yn = input()
         if yn == 'y' or yn == 'Y':
             print("Enter width ratio(%):",end=' ')  # < 100
@@ -60,7 +53,7 @@ def resize(image, location):
             wh_ratio = image.height/image.width
             image_width = int(width * ratio * 0.01)
             resized = image.resize((image_width,int(image_width*wh_ratio)), Image.ANTIALIAS)
-            pasted = paste(resized, location)
+            pasted = paste(resized, h_ratio, v_ratio)
         # elif yn == 'n' or yn == 'N':
         else:
             print("Confirmed")
@@ -110,9 +103,6 @@ image = Image.open('logo.png').convert('RGBA')  # image to paste
 background_color = image.getpixel((0,0))
 print(f"image size : {image.size} / background color : {background_color}\n")
 
-print("Enter size you want to make.")
-print("SD : 750×1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
-size_dict = {'SD':(750,1334), 'HD':(1500,2668), 'FHD':(1859,3306), 'UHD':(2303,4096)}
 size = (width,height) = get_size()
 
 background = set_background()
