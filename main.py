@@ -1,7 +1,27 @@
-from PIL import Image
+from tkinter import *
+from PIL import Image, ImageTk
 import sys
 from matplotlib import colors
 import rotate_cursor as rc
+
+class Preview():
+    def __init__(self):
+        self.canvas = Canvas(root, width=375, height=667)
+        self.canvas.pack()
+
+    def create(self, image):
+        self.img = ImageTk.PhotoImage(image.resize((375, 667), Image.ANTIALIAS))
+        self.image_on_canvas = self.canvas.create_image(0, 0, anchor=NW, image=self.img)
+    
+    def update(self, image):
+        self.img = ImageTk.PhotoImage(image.resize((375, 667), Image.ANTIALIAS))
+        self.canvas.itemconfig(self.image_on_canvas,image=self.img)
+
+    def show(self, image):
+        try:
+            canvas.update(image)
+        except AttributeError:
+            canvas.create(image)
 
 def get_size():
     print("Enter size you want to make.")
@@ -19,27 +39,17 @@ def get_size():
         except ValueError:
             print("Unavailable")
             
-def set_position(image, h_ratio, v_ratio):
-    return (int((width - image.width)*h_ratio),int((height - image.height)*v_ratio))
-
 def set_background():
     while(True):
         try:
-            print("Set horizonal ratio(%):",end=' ')
+            print("Set horizonal postion as the ratio(%):",end=' ')
             h_ratio = int(input())*0.01
-            print("Set vertical ratio(%):",end=' ')
+            print("Set vertical position as the ratio(%):",end=' ')
             v_ratio = (100 - int(input()))*0.01
             break
         except ValueError:
             print("Unavailable.")
     return resize(image,h_ratio,v_ratio)
-
-def paste(image, h_ratio, v_ratio):
-    position = set_position(image, h_ratio, v_ratio)
-    background = Image.new(mode='RGBA', size=size, color=background_color)
-    background.paste(image, position)
-    background.show()
-    return background
 
 def resize(image, h_ratio, v_ratio):
     pasted = paste(image, h_ratio, v_ratio)
@@ -59,14 +69,14 @@ def resize(image, h_ratio, v_ratio):
             print("Confirmed")
             return pasted
 
-def mul_255(n):
-    return int(n*255)
-
-def det_range(pixel, background):
-    for i in range(len(background)):
-        if abs(background[i] - pixel[i]) > int(255*0.05): # 5% range
-            return False
-    return True
+def get_background_color():
+    print("\nDo you want to change the background color?(Y/N)",end=' ')
+    yn = input()
+    if yn == 'y' or yn == 'Y':
+        change_background()
+    # elif yn == 'n' or yn == 'N':
+    else:
+        print("Okay")
 
 def change_background():
     try:
@@ -89,15 +99,28 @@ def change_background():
             assert(True)                            # stop rotating
             sys.stdout.write('\033[2K\033[1G')      # delete command line
             print("Converted!")
+            canvas.show(background)
 
-def get_background_color():
-    print("\nDo you want to change the background color?(Y/N)",end=' ')
-    yn = input()
-    if yn == 'y' or yn == 'Y':
-        change_background()
-    # elif yn == 'n' or yn == 'N':
-    else:
-        print("Okay")
+
+def set_position(image, h_ratio, v_ratio):
+    return (int((width - image.width)*h_ratio),int((height - image.height)*v_ratio))
+
+def paste(image, h_ratio, v_ratio):
+    position = set_position(image, h_ratio, v_ratio)
+    background = Image.new(mode='RGBA', size=size, color=background_color)
+    background.paste(image, position)
+    canvas.show(background)
+    return background
+
+def mul_255(n):
+    return int(n*255)
+
+def det_range(pixel, background):
+    for i in range(len(background)):
+        if abs(background[i] - pixel[i]) > int(255*0.05): # 5% range
+            return False
+    return True
+    
 
 image = Image.open('logo.png').convert('RGBA')  # image to paste
 background_color = image.getpixel((0,0))
@@ -105,8 +128,14 @@ print(f"image size : {image.size} / background color : {background_color}\n")
 
 size = (width,height) = get_size()
 
+root = Tk()
+root.title("Preview")
+canvas = Preview()
+
 background = set_background()
 
 get_background_color()
+
+root.mainloop()
 
 background.save('background.png', quality=95)
