@@ -1,10 +1,25 @@
 from tkinter import *
-from PIL import Image, ImageTk
+from PIL import Image, ImageColor, ImageOps
 import sys
-from matplotlib import colors
 import rotate_cursor as rc
 from gui import Preview
 
+
+def dominant_color(image, transparent):  
+    if transparent == False:    # RGB(not alpha)
+        reduced = image.convert("P", palette=Image.ADAPTIVE) 
+        palette = reduced.getpalette() 
+
+        p_colors = reduced.getcolors()
+        p_color = [_[0] for _ in p_colors]
+        idx = p_colors[p_color.index(max(p_color))][1]
+
+        rgb = palette[3*idx:3*idx+3]
+        rgb.append(255)
+        return tuple(rgb)
+    else:                       # Transparent background
+        make_transparent(image)
+        return (0,0,0,0)
 
 def get_size():
     print("Enter size you want to make.")
@@ -66,8 +81,7 @@ def change_background():
     try:
         print("What color?",end=' ')
         color = input()
-        rgb = tuple(map(mul_255,colors.to_rgba(color))) # RGBA using matplotlib
-        # rgb = ImageColor.getrgb(color) # RGB using PIL
+        rgb = ImageColor.getcolor(color,'RGBA')
     except ValueError:
         print("Unavailable color")
         change_background()
@@ -77,7 +91,6 @@ def change_background():
         with rc.Spinner():
             for x in range(0,width):
                 for y in range(0,height):
-                    # if background.getpixel((x,y)) == background_color:
                     if det_range(background.getpixel((x,y)),background_color) == True:
                         background.putpixel((x,y),rgb)
             assert(True)                            # stop rotating
@@ -96,18 +109,34 @@ def paste(image, h_ratio, v_ratio):
     canvas.show(background)
     return background
 
-def mul_255(n):
-    return int(n*255)
-
 def det_range(pixel, background):
     for i in range(len(background)):
         if abs(background[i] - pixel[i]) > int(255*0.05): # 5% range
             return False
     return True
     
+def has_transparency(image):
+    if image.mode == "P":
+        transparent = image.info.get("transparency", -1)
+        for _, index in image.getcolors():
+            if index == transparent:
+                return True
+    elif image.mode == "RGBA":
+        extrema = image.getextrema()
+        if extrema[3][0] < 255:
+            return True
+    return False
+
+def make_transparent(image):
+    for x in range(0,image.width):
+        for y in range(0,image.height):
+            if image.getpixel((x,y))[-1] < int(255*0.05):
+                image.putpixel((x,y),(0,0,0,0))
+
 
 image = Image.open('logo.png').convert('RGBA')  # image to paste
-background_color = image.getpixel((0,0))
+# background_color = image.getpixel((0,0))
+background_color = dominant_color(image, has_transparency(image))
 print(f"image size : {image.size} / background color : {background_color}\n")
 
 size = (width,height) = get_size()
