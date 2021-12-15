@@ -3,5 +3,6 @@
 Use photos like phrases or character pictures that you screenshot.\
 It calculates dominant color as the background color.
 
-Require : Pillow, Tkinter
+Add photos to <code>/data</code>
 
+Execute <code>./main data/logo.png</code>
