@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 from tkinter import *
-from PIL import Image, ImageColor, ImageOps
+from PIL import Image, ImageColor
 import sys
 import rotate_cursor as rc
 from gui import Preview
@@ -23,7 +24,7 @@ def dominant_color(image, transparent):
 
 def get_size():
     print("Enter size you want to make.")
-    print("SD : 750×1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
+    print("SD : 750x1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
     size_dict = {'SD':(750,1334), 'HD':(1500,2668), 'FHD':(1859,3306), 'UHD':(2303,4096)}
     while(True):
         try:
@@ -53,19 +54,22 @@ def resize(image, h_ratio, v_ratio):
     pasted = paste(image, h_ratio, v_ratio)
     resized = image.copy()
     while(True):
-        print("\nWant to resize?(proportion maintained)(Y/N)",end=' ')
-        yn = input()
-        if yn == 'y' or yn == 'Y':
-            print("Enter width ratio(%):",end=' ')  # < 100
-            ratio = int(input())
-            wh_ratio = image.height/image.width
-            image_width = int(width * ratio * 0.01)
-            resized = image.resize((image_width,int(image_width*wh_ratio)), Image.ANTIALIAS)
-            pasted = paste(resized, h_ratio, v_ratio)
-        # elif yn == 'n' or yn == 'N':
-        else:
-            print("Confirmed")
-            return pasted
+        try:
+            print("\nWant to resize?(proportion maintained)(Y/N)",end=' ')
+            yn = input()
+            if yn == 'y' or yn == 'Y':
+                print("Enter width ratio(%):",end=' ')  # < 100
+                ratio = int(input())
+                wh_ratio = image.height/image.width
+                image_width = int(width * ratio * 0.01)
+                resized = image.resize((image_width,int(image_width*wh_ratio)), Image.ANTIALIAS)
+                pasted = paste(resized, h_ratio, v_ratio)
+            # elif yn == 'n' or yn == 'N':
+            else:
+                print("Confirmed")
+                return pasted
+        except ValueError:
+            print("Error")
 
 def get_background_color():
     print("\nDo you want to change the background color?(Y/N)",end=' ')
@@ -130,11 +134,11 @@ def has_transparency(image):
 def make_transparent(image):
     for x in range(0,image.width):
         for y in range(0,image.height):
-            if image.getpixel((x,y))[-1] < int(255*0.05):
+            if image.getpixel((x,y))[-1] < int(255*0.15):
                 image.putpixel((x,y),(0,0,0,0))
 
 
-image = Image.open('logo.png').convert('RGBA')  # image to paste
+image = Image.open(sys.argv[1]).convert('RGBA')  # image to paste
 # background_color = image.getpixel((0,0))
 background_color = dominant_color(image, has_transparency(image))
 print(f"image size : {image.size} / background color : {background_color}\n")
@@ -150,4 +154,4 @@ get_background_color()
 
 root.mainloop()
 
-background.save('background.png', quality=95)
+background.save('results/background.png', quality=95)
