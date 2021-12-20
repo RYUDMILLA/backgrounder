@@ -23,7 +23,7 @@ def dominant_color(image, transparent):
         return (0,0,0,0)
 
 def get_size():
-    print("Enter size you want to make.")
+    print("Enter size you want to make.(width height)")
     print("SD : 750x1334 / HD : 1500x2668 / FHD : 1859x3306 / UHD : 2303x4096")
     size_dict = {'SD':(750,1334), 'HD':(1500,2668), 'FHD':(1859,3306), 'UHD':(2303,4096)}
     while(True):
@@ -34,6 +34,7 @@ def get_size():
                 return size_dict[input]
             else:
                 width,height = map(int, input.split())
+                print(f"{width}, {height} selected.\n")
             return (width,height)
         except ValueError:
             print("Unavailable")
@@ -146,7 +147,7 @@ print(f"image size : {image.size} / background color : {background_color}\n")
 size = (width,height) = get_size()
 
 root = Tk()
-canvas = Preview(root)
+canvas = Preview(root, size[1]/size[0])
 
 background = set_background()
 
