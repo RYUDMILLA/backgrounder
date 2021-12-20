@@ -4,7 +4,16 @@ from PIL import Image, ImageColor
 import sys
 import rotate_cursor as rc
 from gui import Preview
+import os
 
+
+# def resource_path(relative_path):
+#     try:
+#         base_path = sys._MEIPASS
+#     except Exception:
+#         base_path = os.path.abspath(".")
+
+#     return os.path.join(base_path, relative_path)
 
 def dominant_color(image, transparent):  
     if transparent == False:    # RGB(not alpha)
@@ -155,4 +164,4 @@ get_background_color()
 
 root.mainloop()
 
-background.save('results/background.png', quality=95)
+background.save(f'results/{os.path.splitext(os.path.basename(sys.argv[1]))[0]}_bg.png', quality=95)
