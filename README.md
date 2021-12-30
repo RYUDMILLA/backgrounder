@@ -5,12 +5,15 @@ It calculates dominant color as the background color.
 
 Requirements : Python3
 
-Add photos to <code>/data</code> file.
+Run
 
-Execute Unix exe file 
-    
     git clone https://github.com/RYUDMILLA/backgrounder.git
     cd backgrounder
+    make
+
+Execute Unix exe file
+
     ./main data/logo.png
 
+Add photos to <code>data/</code> subdirectory, and make own wallpaper.
 
